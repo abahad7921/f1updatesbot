@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "F1UpdatesBot": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
