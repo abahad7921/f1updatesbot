@@ -1,4 +1,5 @@
-﻿using F1UpdatesBot.Src.Models;
+﻿using F1UpdatesBot.Src.Helpers;
+using F1UpdatesBot.Src.Models;
 using F1UpdatesBot.Src.Services.Interfaces;
 using Newtonsoft.Json;
 using System;
@@ -12,6 +13,7 @@ namespace F1UpdatesBot.Src.Services
     public class SessionsService : ISessionsService
     {
         private readonly HttpClient _httpClient;
+        private int? _sessionKey;
 
         public SessionsService()
         {
@@ -23,19 +25,27 @@ namespace F1UpdatesBot.Src.Services
 
         public async Task<List<Session>> getAll()
         {
-            var response = await _httpClient.GetStringAsync("sessions?year=2025&session_name=Race");
-            return JsonConvert.DeserializeObject<List<Session>>(response);
+            return await RetryHelper.ExecuteWithRetryAsync(async () =>
+            {
+                var response = await _httpClient.GetStringAsync("sessions?year=2025");
+                return JsonConvert.DeserializeObject<List<Session>>(response);
+            });
         }
 
         public async Task<int> getCurrentSessionKey()
-        {
-            var sessions = await getAll();
-            var upcomingRace = sessions
-                .Where(s => s.SessionType == "Race" && s.DateStart > DateTime.UtcNow)
-                   .OrderBy(s => s.DateStart)
-                .FirstOrDefault();
+        {   
+            if (_sessionKey == null)
+            {
+                var sessions = await getAll();
+                var upcomingRace = sessions
+                     .Where(s => s.DateStart > DateTime.UtcNow)
+                       .OrderByDescending(s => s.DateStart)
+                    .FirstOrDefault();
 
-            return upcomingRace == null ? 0 : upcomingRace.SessionKey;
+                _sessionKey = upcomingRace == null ? 0 : upcomingRace.SessionKey;
+            }
+
+            return _sessionKey.Value;
         }
     }
 }
