@@ -89,9 +89,6 @@ namespace F1UpdatesBot.Src
             var raceStart = raceSession.DateStart;
             //var raceEnd = raceSession.DateEnd ?? raceStart.AddHours(2); // default to 2 hours
             var raceEnd = raceSession.DateEnd;
-
-            var channel = _client.GetChannel(ulong.Parse("1367197611097850050")) as IMessageChannel;
-
             // Schedule driver lineup 30 minutes before race
             _ = Task.Run(async () =>
             {
@@ -99,14 +96,7 @@ namespace F1UpdatesBot.Src
                 if (lineupDelay > TimeSpan.Zero)
                     await Task.Delay(lineupDelay);
 
-                var drivers = await _openF1Service.GetDriversAsync();
-                string message = $"**Driver Lineup for {raceSession.Location} Grand Prix:**\n";
-                foreach (var driver in drivers)
-                {
-                    message += $"- {driver.FullName} ({driver.TeamName})\n";
-                }
-
-                await channel.SendMessageAsync(message);
+                await _driverService.SednDriverLineUpAsync(raceSession.Location);
             });
 
             // Start lap updates at race start
