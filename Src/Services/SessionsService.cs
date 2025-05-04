@@ -38,7 +38,7 @@ namespace F1UpdatesBot.Src.Services
             {
                 var sessions = await getAll();
                 var upcomingRace = sessions
-                     .Where(s => s.DateStart > DateTime.UtcNow)
+                     //.Where(s => s.DateStart > DateTime.UtcNow)
                        .OrderByDescending(s => s.DateStart)
                     .FirstOrDefault();
 

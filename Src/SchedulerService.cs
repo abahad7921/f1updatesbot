@@ -22,7 +22,8 @@ namespace F1UpdatesBot.Src
         private Timer _lapUpdateTimer;
         private bool _raceStarted = false;
         private bool _resultSent = false;
-
+        private Timer _checkTimer;
+        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(10);
         public SchedulerService(
             DiscordSocketClient client,
             Openf1Service openF1Service,
@@ -39,20 +40,52 @@ namespace F1UpdatesBot.Src
             _driverService = driverService;
         }
 
-        public async Task StartAsync()
+        public void StartPeriodicChecks()
         {
-            //await _driverService.SednDriverLineUpAsync("Riyadh");
-            
+            // Start checking immediately and then every 30 minutes
+            _checkTimer = new Timer(CheckSessionsCallback, null, TimeSpan.Zero, _checkInterval);
+        }
+
+        public void StopPeriodicChecks()
+        {
+            _checkTimer?.Dispose();
+            _checkTimer = null;
+        }
+
+        private async void CheckSessionsCallback(object state)
+        {
+            try
+            {
+                Console.WriteLine("Checking for upcoming race sessions...");
+                await StartAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in periodic race session check: {ex.Message}");
+                await StartAsync();
+
+                // Continue with the timer despite errors
+            }
+        }
+
+        public async Task StartAsync()
+        {            
             var sessions = await _sessionsService.getAll();
             var raceSession = sessions
-                //.Where(s => s.SessionType == "Race")
-                .Where(s => s.DateStart > DateTime.UtcNow)
-                .OrderBy(s => s.DateStart)
+                .OrderByDescending(s => s.DateStart)
                 .FirstOrDefault();
 
             if (raceSession == null)
+            {
+                // If we're not already periodically checking, start checking
+                if (_checkTimer == null)
+                {
+                    StartPeriodicChecks();
+                }
                 return;
+            }
 
+            StopPeriodicChecks();
             var raceStart = raceSession.DateStart;
             //var raceEnd = raceSession.DateEnd ?? raceStart.AddHours(2); // default to 2 hours
             var raceEnd = raceSession.DateEnd;
