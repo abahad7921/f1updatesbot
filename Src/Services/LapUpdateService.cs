@@ -105,9 +105,14 @@ namespace F1UpdatesBot.Src.Services
                 }
 
                 // Build a lookup for current positions
-                var positionLookup = driverInfo.ToDictionary(
-                    d => d.DriverNumber,
-                    d => d.CurrentPosition);
+                var driverPositions = new Dictionary<int, int>();
+                if (driverInfo != null)
+                {
+                    foreach (var driver in driverInfo)
+                    {
+                            driverPositions[driver.DriverNumber] = driver.CurrentPosition;
+                    }
+                }
 
                 var driverData = new List<DriverLapInfo>();
 
@@ -127,8 +132,13 @@ namespace F1UpdatesBot.Src.Services
 
                     if (latestLap == null) continue;
 
-                    // Try to get position from our lookup, default to 0 if not found
-                    positionLookup.TryGetValue(driverNumber, out var position);
+                    // Get the position from the driver info
+                    int position = 999; // Default high number to sort at the end
+                    var driverInfoEntry = driverInfo?.FirstOrDefault(d => d.DriverNumber == driverNumber);
+                    if (driverInfoEntry != null)
+                    {
+                        position = driverInfoEntry.CurrentPosition;
+                    }
 
                     driverData.Add(new DriverLapInfo
                     {
