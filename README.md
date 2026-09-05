@@ -127,7 +127,7 @@ The bot automatically schedules updates based on the official F1 calendar. It fe
 * **Lap Updates**: At race start, every 10 minutes.
 * **Final Standings**: At race end.
 
-For the latest race schedule, refer to the [official F1 calendar](https://www.formula1.com/en/racing).
+For the latest race schedule, refer to the [official F1 calendar](https://www.formula1.com/en/latest/article/download-or-sync-the-f1-race-calendar-to-your-device.7mpETY062kafAl55qVnemu).
 
 ---
 
