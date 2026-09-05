@@ -23,26 +23,35 @@ namespace F1UpdatesBot.Src.Services
             };
         }
 
-        public async Task<List<Session>> getAll()
+        public async Task<List<Session>> GetAllAsync()
         {
             return await RetryHelper.ExecuteWithRetryAsync(async () =>
             {
-                var response = await _httpClient.GetStringAsync("sessions?year=2025");
+                var year = DateTime.UtcNow.Year;
+                var response = await _httpClient.GetStringAsync($"sessions?year={year}");
                 return JsonConvert.DeserializeObject<List<Session>>(response);
             });
         }
 
-        public async Task<int> getCurrentSessionKey()
-        {   
-            if (_sessionKey == null)
-            {
-                var sessions = await getAll();
-                var upcomingRace = sessions
-                     //.Where(s => s.DateStart > DateTime.UtcNow)
-                       .OrderByDescending(s => s.DateStart)
-                    .FirstOrDefault();
+        public async Task<Session?> GetNextRaceSessionAsync()
+        {
+            var now = DateTime.UtcNow;
+            var sessions = await GetAllAsync();
 
-                _sessionKey = upcomingRace == null ? 0 : upcomingRace.SessionKey;
+            return sessions
+                .Where(s => string.Equals(s.SessionType, "Race", StringComparison.OrdinalIgnoreCase))
+                // Include a race already under way as well as the next future race.
+                .Where(s => !s.DateEnd.HasValue || s.DateEnd.Value >= now)
+                .OrderBy(s => s.DateStart)
+                .FirstOrDefault();
+        }
+
+        public async Task<int> GetCurrentSessionKeyAsync()
+        {
+            if (_sessionKey is null)
+            {
+                var raceSession = await GetNextRaceSessionAsync();
+                _sessionKey = raceSession?.SessionKey ?? 0;
             }
 
             return _sessionKey.Value;

@@ -19,10 +19,9 @@ namespace F1UpdatesBot.Src.Models
         public DateTime DateStart { get; set; }
 
         [JsonProperty("date_end")]
-        public DateTime DateEnd { get; set; }
+        public DateTime? DateEnd { get; set; }
 
         [JsonProperty("location")]
         public string Location { get; set; }
     }
 }
-

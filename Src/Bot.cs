@@ -22,6 +22,9 @@ namespace F1UpdatesBot.Src
 
         public async Task RunAsync()
         {
+            if (string.IsNullOrWhiteSpace(_token))
+                throw new InvalidOperationException("BOT_TOKEN is missing. Set it in the environment or .env file.");
+
             _client.Log += LogAsync;
 
             var readyTcs = new TaskCompletionSource();

@@ -70,10 +70,7 @@ namespace F1UpdatesBot.Src
 
         public async Task StartAsync()
         {            
-            var sessions = await _sessionsService.getAll();
-            var raceSession = sessions
-                .OrderByDescending(s => s.DateStart)
-                .FirstOrDefault();
+            var raceSession = await _sessionsService.GetNextRaceSessionAsync();
 
             if (raceSession == null)
             {
@@ -86,9 +83,9 @@ namespace F1UpdatesBot.Src
             }
 
             StopPeriodicChecks();
+            _openF1Service.SetSessionKey(raceSession.SessionKey);
             var raceStart = raceSession.DateStart;
-            //var raceEnd = raceSession.DateEnd ?? raceStart.AddHours(2); // default to 2 hours
-            var raceEnd = raceSession.DateEnd;
+            var raceEnd = raceSession.DateEnd ?? raceStart.AddHours(2);
             // Schedule driver lineup 30 minutes before race
             _ = Task.Run(async () =>
             {
@@ -130,6 +127,10 @@ namespace F1UpdatesBot.Src
                     _lapUpdateTimer.Dispose();
 
                 await _raceResultService.SendFinalRaceStandingsAsync();
+
+                // Set up the next race without requiring a bot restart.
+                _resultSent = false;
+                await StartAsync();
             });
         }
     }

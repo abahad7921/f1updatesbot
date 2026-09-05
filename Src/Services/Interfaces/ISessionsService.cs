@@ -9,8 +9,8 @@ namespace F1UpdatesBot.Src.Services.Interfaces
 {   
     public interface ISessionsService
     {
-        Task<List<Session>> getAll();
-        Task<int> getCurrentSessionKey();
+        Task<List<Session>> GetAllAsync();
+        Task<Session?> GetNextRaceSessionAsync();
+        Task<int> GetCurrentSessionKeyAsync();
     }
 }
-

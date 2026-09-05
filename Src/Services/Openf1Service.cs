@@ -15,13 +15,18 @@ namespace F1UpdatesBot.Src.Services
     {
         private readonly HttpClient _httpClient;
         private readonly SessionsService _sessionsService;
-        private readonly int _sessionKey;
+        private int _sessionKey;
 
         public Openf1Service(SessionsService sessionsService, HttpClient client)
         {   
             _httpClient = client;
             _sessionsService = sessionsService;
-            _sessionKey = _sessionsService.getCurrentSessionKey().GetAwaiter().GetResult();
+            _sessionKey = _sessionsService.GetCurrentSessionKeyAsync().GetAwaiter().GetResult();
+        }
+
+        public void SetSessionKey(int sessionKey)
+        {
+            _sessionKey = sessionKey;
         }
 
         public async Task<List<Driver>> GetDriversAsync()
@@ -53,4 +58,3 @@ namespace F1UpdatesBot.Src.Services
 
     }
 }
-

@@ -35,7 +35,7 @@ cd f1updatesbot
 Create a `.env` file in the root directory and add the following:
 
 ```env
-DISCORD_TOKEN=your_discord_bot_token
+BOT_TOKEN=your_discord_bot_token
 CHANNEL_ID=your_discord_channel_id
 ```
 
@@ -81,7 +81,7 @@ The bot will start and connect to your specified Discord channel, ready to provi
    ```bash
    docker run -d \
      --name f1updatesbot \
-     -e DISCORD_TOKEN=your_discord_bot_token \
+     -e BOT_TOKEN=your_discord_bot_token \
      -e CHANNEL_ID=your_discord_channel_id \
      f1-discord-bot
    ```
@@ -107,7 +107,7 @@ The bot automatically schedules updates based on the official F1 calendar. It fe
 * **Lap Updates**: At race start, every 10 minutes.
 * **Final Standings**: At race end.
 
-For the latest race schedule, refer to the [official F1 calendar](https://www.formula1.com/en/racing/2025).
+For the latest race schedule, refer to the [official F1 calendar](https://www.formula1.com/en/racing).
 
 ---
 
